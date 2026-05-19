@@ -31,6 +31,10 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('Cart/Cart'); // Sesuai nama file Cart.jsx kamu
     })->name('member.cart');
 
+    Route::get('/checkout', function () {
+        return Inertia::render('Cart/Checkout'); // Sesuaikan folder Anda
+    })->name('member.checkout');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

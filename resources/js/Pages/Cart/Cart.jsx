@@ -234,16 +234,22 @@ export default function Cart({ auth }) { // Menerima props auth dari Laravel bac
                   <span className="font-bold text-lg text-[#AB2A02]">Rp {totalPayment.toLocaleString('id-ID')}</span>
                 </div>
 
-                <button 
-                  disabled={totalSelectedItems === 0}
-                  className={`w-full text-center py-3 rounded font-bold tracking-wider text-xs uppercase transition-colors ${
+                <Link 
+                  // Jika tidak ada item yang dipilih, cegah navigasi (arahkan ke # saja)
+                  href={totalSelectedItems === 0 ? '#' : route('member.checkout')}
+                  
+                  // Menambahkan properti aria-disabled untuk aksesibilitas saat disabled
+                  aria-disabled={totalSelectedItems === 0}
+                  
+                  // Pindahkan seluruh class styling ke sini
+                  className={`w-full block text-center py-3 rounded font-bold tracking-wider text-xs uppercase transition-colors ${
                     totalSelectedItems === 0 
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed pointer-events-none' // pointer-events-none mematikan fungsi klik link
                     : 'bg-[#AB2A02] text-white hover:bg-[#852102]'
                   }`}
                 >
                   Sewa Sekarang ({totalSelectedItems})
-                </button>
+                </Link>
               </div>
             </div>
 
