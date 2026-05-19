@@ -47,6 +47,10 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        if ($user->role === 'owner') {
+            return redirect(route('owner.dashboard', absolute: false));
+        }
+
+        return redirect(route('member.products', absolute: false));
     }
 }

@@ -8,10 +8,10 @@ export default function Navbar({ user }) {
                     <img src="/assets/mountain_icon.png" alt="logo" className="w-12" />
                 </Link>
 
-                <nav className="hidden md:flex gap-8 font-semibold text-[#0e0e2c] text-sm">
+                {/* <nav className="hidden md:flex gap-8 font-semibold text-[#0e0e2c] text-sm">
                     <Link href="/products" className="hover:text-[#AB2A02] transition-colors">Home</Link>
                     <Link href="/transactions" className="hover:text-[#AB2A02] transition-colors">Rental History</Link>
-                </nav>
+                </nav> */}
                 
                 <div className="flex items-center gap-6">
                     <Link href="/cart" className="text-[#0e0e2c] hover:text-[#AB2A02] transition-colors">
