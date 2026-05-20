@@ -76,10 +76,13 @@ export default function Edit({ auth }) {
                             
                             {/* === LOGIKA CONDITIONAL KHUSUS MEMBER === */}
                             {auth.user.role === 'member' && (
-                                <li className="p-4 px-6 flex items-center font-bold gap-3 rounded-lg text-[#0e0e2c] hover:bg-black/10 transition-colors cursor-pointer">
+                                <Link 
+                                    href={route('profile.transactions')} 
+                                    className="p-4 px-6 flex items-center font-bold gap-3 rounded-lg text-[#0e0e2c] hover:bg-black/10 transition-colors cursor-pointer w-full"
+                                >
                                     <i className="fa-solid fa-clock-rotate-left"></i>
                                     <span>Transactions History</span>
-                                </li>
+                                </Link>
                             )}
 
                             <li className="p-4 px-6 mt-4 flex items-center font-bold gap-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors cursor-pointer">
