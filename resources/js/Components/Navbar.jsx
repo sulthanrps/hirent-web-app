@@ -26,14 +26,14 @@ export default function Navbar({ user }) {
                             <span>{user?.name || 'Member'}</span>
                         </Link>
                         
-                        <Link 
+                        {/* <Link 
                             href="/logout" 
                             method="post" 
                             as="button" 
                             className="text-sm font-bold text-red-600 hover:text-red-800 transition-colors"
                         >
                             Logout
-                        </Link>
+                        </Link> */}
                     </div>
                 </div>
             </div>

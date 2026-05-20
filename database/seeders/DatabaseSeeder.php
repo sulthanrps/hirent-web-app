@@ -17,7 +17,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Buat User (1 Owner & 1 Member)
         $owner = User::create([
             'name' => 'Owner Hirent',
             'username' => 'owner_hirent',
@@ -36,12 +35,10 @@ class DatabaseSeeder extends Seeder
             'phone_number' => '089876543210',
         ]);
 
-        // 2. Buat Kategori
         $kategoriTenda = Category::create(['name' => 'Tenda']);
         $kategoriSepatu = Category::create(['name' => 'Sepatu Gunung']);
         $kategoriCarrier = Category::create(['name' => 'Tas Carrier']);
 
-        // 3. Buat Produk (Dimiliki oleh Owner)
         $produk1 = Product::create([
             'user_id' => $owner->id,
             'category_id' => $kategoriTenda->id,
@@ -56,20 +53,32 @@ class DatabaseSeeder extends Seeder
             'category_id' => $kategoriCarrier->id,
             'name' => 'Carrier Eiger 60L',
             'description' => 'Tas carrier super nyaman untuk pendakian 3-4 hari. Backsystem empuk.',
-            'price' => 35000, // Rp 35.000 / hari
+            'price' => 35000, 
             'stock' => 3,
         ]);
 
-        // 4. Buat Transaksi Dummy (Member menyewa Produk 1)
         Transaction::create([
-            'user_id' => $member->id,
-            'product_id' => $produk1->id,
+            'user_id' => 2, 
+            'product_id' => 1, 
             'quantity' => 1,
-            'total_price' => 50000,
-            'status' => 'disewakan',
+            'total_price' => 75000,
+            'payment_method' => 'gopay',
+            'payment_status' => 'settlement',
+            'rent_date' => now(),
+            'return_date' => now()->addDays(3),
         ]);
 
-        // 5. Buat Review Dummy
+        Transaction::create([
+            'user_id' => 2,
+            'product_id' => 2,
+            'quantity' => 2,
+            'total_price' => 120000,
+            'payment_method' => 'bank_transfer',
+            'payment_status' => 'pending',
+            'rent_date' => now()->addDays(5),
+            'return_date' => now()->addDays(7),
+        ]);
+
         Review::create([
             'user_id' => $member->id,
             'product_id' => $produk1->id,

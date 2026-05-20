@@ -211,7 +211,7 @@ export default function Cart({ auth }) { // Menerima props auth dari Laravel bac
                 </div>
                 
                 {/* Input Kode Promo */}
-                <div className="flex gap-2 my-5">
+                {/* <div className="flex gap-2 my-5">
                   <input 
                     type="text" 
                     placeholder="KODE PROMO (PETUALANG)" 
@@ -225,7 +225,7 @@ export default function Cart({ auth }) { // Menerima props auth dari Laravel bac
                   >
                     Apply
                   </button>
-                </div>
+                </div> */}
 
                 <hr className="border-gray-100 my-4" />
                 
