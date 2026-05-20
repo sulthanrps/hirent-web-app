@@ -22,6 +22,10 @@ return new class extends Migration
             $table->integer('quantity'); // Jumlah barang yang dipinjam
             $table->integer('total_price'); // Total harga (quantity * harga produk)
             $table->enum('status', ['pending', 'disewakan', 'dikembalikan'])->default('pending');
+            $table->string('payment_method');
+            $table->string('payment_status')->default('pending');
+            $table->date('rent_date');
+            $table->date('return_date');
             
             $table->timestamps();
         });
