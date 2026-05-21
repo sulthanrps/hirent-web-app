@@ -23,6 +23,12 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('Product/Index'); // Nanti kita buat halamannya
     })->name('member.products');
 
+    Route::get('/products/{id}', function ($id) {
+        return Inertia::render('Product/Detail', [
+            'productId' => $id
+        ]);
+    })->name('member.products.detail');
+
     Route::get('/owner/dashboard', function () {
         return Inertia::render('Owner/Dashboard'); // Nanti kita buat halamannya
     })->name('owner.dashboard');
