@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Transaction;
+use App\Models\TransactionItem; // <-- Tambahkan ini
 use App\Models\Review;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -57,27 +58,45 @@ class DatabaseSeeder extends Seeder
             'stock' => 3,
         ]);
 
-        Transaction::create([
-            'user_id' => 2, 
-            'product_id' => 1, 
-            'quantity' => 1,
-            'total_price' => 75000,
-            'payment_method' => 'gopay',
-            'payment_status' => 'settlement',
-            'rent_date' => now(),
-            'return_date' => now()->addDays(3),
-        ]);
+        // ==========================================
+        // TRANSAKSI 1 (DIPISAH HEADER DAN DETAIL)
+        // ==========================================
+        // $trx1 = Transaction::create([
+        //     'user_id' => $member->id, 
+        //     'total_price' => 75000,
+        //     'payment_method' => 'gopay',
+        //     'payment_status' => 'settlement',
+        //     'status' => 'pending'
+        // ]);
 
-        Transaction::create([
-            'user_id' => 2,
-            'product_id' => 2,
-            'quantity' => 2,
-            'total_price' => 120000,
-            'payment_method' => 'bank_transfer',
-            'payment_status' => 'pending',
-            'rent_date' => now()->addDays(5),
-            'return_date' => now()->addDays(7),
-        ]);
+        // TransactionItem::create([
+        //     'transaction_id' => $trx1->id,
+        //     'product_id' => $produk1->id, 
+        //     'quantity' => 1,
+        //     'subtotal' => 75000,
+        //     'rent_date' => now(),
+        //     'return_date' => now()->addDays(3),
+        // ]);
+
+        // ==========================================
+        // TRANSAKSI 2 (DIPISAH HEADER DAN DETAIL)
+        // ==========================================
+        // $trx2 = Transaction::create([
+        //     'user_id' => $member->id,
+        //     'total_price' => 120000,
+        //     'payment_method' => 'bank_transfer',
+        //     'payment_status' => 'pending',
+        //     'status' => 'pending'
+        // ]);
+
+        // TransactionItem::create([
+        //     'transaction_id' => $trx2->id,
+        //     'product_id' => $produk2->id,
+        //     'quantity' => 2,
+        //     'subtotal' => 120000,
+        //     'rent_date' => now()->addDays(5),
+        //     'return_date' => now()->addDays(7),
+        // ]);
 
         Review::create([
             'user_id' => $member->id,

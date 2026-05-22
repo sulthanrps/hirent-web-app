@@ -91,7 +91,7 @@ class TransactionController extends Controller
         DB::transaction(function () use ($items, $validated) {
             $totalPrice = $items->sum(fn($item) => $item->quantity * $item->product->price);
 
-            // Buat header transaksi
+            // 1. Buat header transaksi (Hanya simpan status & harga)
             $transaction = Transaction::create([
                 'user_id'        => Auth::id(),
                 'total_price'    => $totalPrice,
@@ -100,7 +100,7 @@ class TransactionController extends Controller
                 'payment_status' => 'pending',
             ]);
 
-            // Buat detail transaksi & kurangi stok
+            // 2. Buat detail transaksi & kurangi stok (Tanggal disimpan di sini!)
             foreach ($items as $item) {
                 TransactionItem::create([
                     'transaction_id' => $transaction->id,
@@ -144,8 +144,8 @@ class TransactionController extends Controller
                         'id'          => $item->id,
                         'quantity'    => $item->quantity,
                         'subtotal'    => $item->subtotal,
-                        'rent_date'   => $item->rent_date->format('d M Y'),
-                        'return_date' => $item->return_date->format('d M Y'),
+                        'rent_date'   => \Carbon\Carbon::parse($item->rent_date)->format('d M Y'),
+                        'return_date' => \Carbon\Carbon::parse($item->return_date)->format('d M Y'),
                         'product'     => [
                             'name'  => $item->product->name,
                             'image' => $item->product->image

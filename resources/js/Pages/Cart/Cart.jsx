@@ -1,37 +1,43 @@
-import React, { useState } from 'react';
-import MainLayout from '@/Layouts/MainLayout'; // Import MainLayout proyek Anda
-import { Head, Link } from '@inertiajs/react';   // Tambahkan import Link di sini
+import React, { useState, useEffect } from 'react';
+import MainLayout from '@/Layouts/MainLayout';
+import { Head, Link, router } from '@inertiajs/react';
 
-export default function Cart({ auth }) { // Menerima props auth dari Laravel backend
-  
-  // State data keranjang dummy (nanti perlu diubah jadi dinamis dari BE)
-  // PERLU DIUBAH
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "Naturehike Cloud Up 2 Person Ultralight Tent",
-      category: "TENDA & SHELTER",
-      pricePerDay: 25000,
-      image: "/assets/tenda.jpg", 
-      color: "Orange",
-      quantity: 1,
-      duration: 3,
-      selected: true
-    },
-    {
-      id: 2,
-      name: "Naturehike Cloud Up 2 Person Ultralight Tent",
-      category: "TENDA & SHELTER",
-      pricePerDay: 25000,
-      image: "/assets/tenda.jpg",
-      color: "Green Forest",
-      quantity: 2,
-      duration: 2,
-      selected: false
+export default function Cart({ auth, items }) {
+  const [cartItems, setCartItems] = useState([]);
+  useEffect(() => {
+    if (items) {
+      const formattedItems = items.map(item => {
+        // Hitung durasi (hari) dari rent_date ke return_date
+        const start = new Date(item.rent_date);
+        const end = new Date(item.return_date);
+        const durationDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+
+        return {
+          id: item.id, // ID cart item
+          product_id: item.product.id,
+          name: item.product.name,
+          category: item.product.category,
+          pricePerDay: item.product.price,
+          image: item.product.image || "/assets/tenda.jpg", // Fallback image
+          color: "Default", // Nanti bisa disesuaikan kalau ada fitur warna di DB
+          quantity: item.quantity,
+          duration: durationDays > 0 ? durationDays : 1,
+          selected: true // Default tercentang
+        };
+      });
+      setCartItems(formattedItems);
     }
-  ]);
+  }, [items]);
 
-  const [promoCode, setPromoCode] = useState("");
+  const handleCheckout = () => {
+      const selectedIds = cartItems.filter(item => item.selected).map(item => item.id);
+      
+      if (selectedIds.length === 0) return;
+
+      router.get(route('member.checkout'), { 
+          cart_item_ids: selectedIds 
+      });
+  };
   const [discount, setDiscount] = useState(0);
 
   // Handle Perubahan Kuantitas (Pcs) atau Durasi (Hari)
@@ -234,22 +240,17 @@ export default function Cart({ auth }) { // Menerima props auth dari Laravel bac
                   <span className="font-bold text-lg text-[#AB2A02]">Rp {totalPayment.toLocaleString('id-ID')}</span>
                 </div>
 
-                <Link 
-                  // Jika tidak ada item yang dipilih, cegah navigasi (arahkan ke # saja)
-                  href={totalSelectedItems === 0 ? '#' : route('member.checkout')}
-                  
-                  // Menambahkan properti aria-disabled untuk aksesibilitas saat disabled
-                  aria-disabled={totalSelectedItems === 0}
-                  
-                  // Pindahkan seluruh class styling ke sini
-                  className={`w-full block text-center py-3 rounded font-bold tracking-wider text-xs uppercase transition-colors ${
-                    totalSelectedItems === 0 
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed pointer-events-none' // pointer-events-none mematikan fungsi klik link
-                    : 'bg-[#AB2A02] text-white hover:bg-[#852102]'
-                  }`}
+                <button
+                    onClick={handleCheckout}
+                    disabled={totalSelectedItems === 0}
+                    className={`w-full block text-center py-3 rounded font-bold tracking-wider text-xs uppercase transition-colors ${
+                        totalSelectedItems === 0
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed pointer-events-none'
+                        : 'bg-[#AB2A02] text-white hover:bg-[#852102]'
+                    }`}
                 >
-                  Sewa Sekarang ({totalSelectedItems})
-                </Link>
+                    Sewa Sekarang ({totalSelectedItems})
+                </button>
               </div>
             </div>
 
