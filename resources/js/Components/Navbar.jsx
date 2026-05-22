@@ -23,7 +23,7 @@ export default function Navbar({ user }) {
                     <div className="flex items-center gap-4">
                         <Link href="/profile" className="flex items-center gap-2 font-semibold text-sm hover:text-[#AB2A02] transition-colors">
                             <i className="fa-solid fa-user text-base"></i>
-                            <span>{user?.name || 'Member'}</span>
+                            <span>{user ? user.name : 'Log In'}</span>
                         </Link>
                         
                         {/* <Link 
