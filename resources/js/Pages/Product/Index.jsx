@@ -11,7 +11,7 @@ export default function Index({ auth }) {
         name: 'Naturehike Cloud Up 2 Person Ultralight Tent',
         // Card 1 dan Card 6 disetel 25rb (di bawah 30rb) supaya badge PROMO otomatis aktif
         price: index === 0 || index === 5 ? 25000 : 35000, 
-        image: null, // Disetel null agar otomatis memakai fallback asset dummy dari ProductCard
+        image: '/assets/tenda.jpg',
     }));
 
     const [products] = useState(dummyProducts);
