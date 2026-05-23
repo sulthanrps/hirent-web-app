@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -17,13 +18,11 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        // Ambil semua transaction_items yang produknya milik owner ini
         $transactionItems = TransactionItem::with(['transaction.user', 'product'])
-            ->whereHas('product', fn($q) => $q->where('user_id', Auth::id()))
+            ->whereHas('product', fn($q) => $q->where('user_id', Auth::id())) // Langsung panggil Auth::id()
             ->latest()
             ->get();
 
-        // Kelompokkan per transaksi untuk tampilan lebih rapi
         $transactions = $transactionItems
             ->groupBy('transaction_id')
             ->map(function ($items) {
@@ -47,42 +46,71 @@ class TransactionController extends Controller
                         'return_date' => $item->return_date->format('d M Y'),
                         'product'     => [
                             'name'  => $item->product->name,
-                            'image' => $item->product->image
-                                        ? asset('storage/' . $item->product->image)
-                                        : null,
+                            'image' => $item->product->image ? asset('storage/' . $item->product->image) : null,
                         ],
                     ]),
                 ];
             })
             ->values();
 
-        // Summary untuk dashboard
         $summary = [
-            'total_pending'     => $transactionItems->where('transaction.status', 'pending')->count(),
-            'total_disewakan'   => $transactionItems->where('transaction.status', 'disewakan')->count(),
-            'total_dikembalikan'=> $transactionItems->where('transaction.status', 'dikembalikan')->count(),
-            'total_revenue'     => TransactionItem::whereHas('product', fn($q) => $q->where('user_id', Auth::id()))
-                                    ->whereHas('transaction', fn($q) => $q->where('status', 'dikembalikan'))
-                                    ->sum('subtotal'),
+            'total_pending'      => $transactionItems->where('transaction.status', 'pending')->count(),
+            'total_disewakan'    => $transactionItems->where('transaction.status', 'disewakan')->count(),
+            'total_dikembalikan' => $transactionItems->where('transaction.status', 'dikembalikan')->count(),
+            'total_revenue'      => TransactionItem::whereHas('product', fn($q) => $q->where('user_id', Auth::id())) // Langsung panggil Auth::id()
+                                        ->whereHas('transaction', fn($q) => $q->where('status', 'dikembalikan'))
+                                        ->sum('subtotal'),
         ];
 
+        $ownerTransactions = Transaction::whereHas('items.product', fn($q) => $q->where('user_id', Auth::id()))->get();
+        
+        $userFirstRentals = $ownerTransactions->groupBy('user_id')->map(function ($userTrxs) {
+            return $userTrxs->min('created_at');
+        });
+
+        $totalCustomers = $userFirstRentals->count();
+        $newCustomersThisMonth = $userFirstRentals->filter(fn($date) => $date >= now()->startOfMonth())->count();
+        $newCustomersLastMonth = $userFirstRentals->filter(fn($date) => $date >= now()->subMonth()->startOfMonth() && $date <= now()->subMonth()->endOfMonth())->count();
+
+        $growthPercentage = $newCustomersLastMonth > 0
+            ? round((($newCustomersThisMonth - $newCustomersLastMonth) / $newCustomersLastMonth) * 100)
+            : ($newCustomersThisMonth > 0 ? 100 : 0);
+
+        $customerMetrics = [
+            'total' => $totalCustomers,
+            'this_month' => $newCustomersThisMonth,
+            'growth_percentage' => $growthPercentage,
+        ];
+
+        $reviews = Review::with(['user', 'product'])
+            ->whereHas('product', fn($q) => $q->where('user_id', Auth::id())) // Langsung panggil Auth::id()
+            ->latest()
+            ->take(6)
+            ->get()
+            ->map(function ($review) {
+                return [
+                    'id'      => $review->id,
+                    'user'    => $review->user->name,
+                    'product' => $review->product->name,
+                    'rating'  => $review->rating,
+                    'comment' => $review->comment,
+                ];
+            });
+
         return Inertia::render('Owner/Dashboard', [
-            'transactions' => $transactions,
-            'summary'      => $summary,
+            'transactions'    => $transactions,
+            'summary'         => $summary,
+            'customerMetrics' => $customerMetrics,
+            'reviews'         => $reviews,
         ]);
     }
 
-    /**
-     * Update status transaksi oleh owner.
-     * Alur: pending → disewakan → dikembalikan
-     */
     public function updateStatus(Request $request, Transaction $transaction)
     {
         $validated = $request->validate([
             'status' => 'required|in:disewakan,dikembalikan',
         ]);
 
-        // Pastikan transaksi ini mengandung produk milik owner yang login
         $ownsProduct = $transaction->items()
             ->whereHas('product', fn($q) => $q->where('user_id', Auth::id()))
             ->exists();
@@ -91,7 +119,6 @@ class TransactionController extends Controller
             abort(403, 'Kamu tidak memiliki akses ke transaksi ini.');
         }
 
-        // Validasi alur status (tidak bisa loncat atau mundur)
         $validTransitions = [
             'pending'    => 'disewakan',
             'disewakan'  => 'dikembalikan',
@@ -104,7 +131,6 @@ class TransactionController extends Controller
             return back()->with('error', 'Perubahan status tidak valid.');
         }
 
-        // Jika dikembalikan, kembalikan stok produk
         if ($validated['status'] === 'dikembalikan') {
             foreach ($transaction->items as $item) {
                 $item->product->increment('stock', $item->quantity);
