@@ -18,7 +18,7 @@ export default function Index({ auth }) {
 
     return (
         <MainLayout user={auth.user}>
-            <Head title="Product Display - HiRent" />
+            <Head title="Product Display" />
 
             {/* Layout Utama: Sidebar Kiri & Konten Kanan */}
             <div className="flex flex-col lg:flex-row gap-[30px] min-h-screen w-full bg-white font-['Work_Sans'] text-[#0e0e2c]">

@@ -82,7 +82,7 @@ export default function Detail({ auth, productId }) {
 
     return (
         <MainLayout user={auth.user}>
-            <Head title="Product Detail - Naturehike Cloud Up 2" />
+            <Head title="Product Detail" />
 
             {/* CONTAINER */}
             <div className="max-w-[1200px] mx-auto px-[20px] font-['Work_Sans'] text-[#0e0e2c] bg-[#fff]">

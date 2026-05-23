@@ -15,6 +15,14 @@ use App\Http\Controllers\Member\ReviewController;
 // PUBLIC ROUTES
 // =============================================
 Route::get('/', function () {
+    if (Auth::check()) {
+        if (Auth::user()->role === 'owner') {
+            return redirect()->route('owner.dashboard');
+        }
+        
+        return redirect()->route('member.products');
+    }
+
     return Inertia::render('Welcome', [
         'canLogin'       => Route::has('login'),
         'canRegister'    => Route::has('register'),
@@ -31,6 +39,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->middleware('verified')->name('dashboard');
+
+    Route::get('/product-catalogue', function () {
+        return Inertia::render('Product/Index');
+    })->middleware('verified')->name('product.index');
 
     // --- Profile ---
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

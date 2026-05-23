@@ -14,11 +14,17 @@ export default function Navbar({ user }) {
                 </nav> */}
                 
                 <div className="flex items-center gap-6">
-                    <Link href="/cart" className="text-[#0e0e2c] hover:text-[#AB2A02] transition-colors">
-                        <i className="fa-solid fa-cart-shopping text-xl"></i>
-                    </Link>
+                    {user && (
+                        <>
+                            <Link href="/cart" className="text-[#0e0e2c] hover:text-[#AB2A02] transition-colors">
+                                <i className="fa-solid fa-cart-shopping text-xl"></i>
+                            </Link>
+
+                            <div className="w-px h-6 bg-gray-300"></div>
+                        </>
+                    )}
                     
-                    <div className="w-px h-6 bg-gray-300"></div>
+                    
 
                     <div className="flex items-center gap-4">
                         <Link href="/profile" className="flex items-center gap-2 font-semibold text-sm hover:text-[#AB2A02] transition-colors">
