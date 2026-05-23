@@ -1,13 +1,26 @@
 import MainLayout from '@/Layouts/MainLayout';
 import ProductCard from '@/Components/ProductCard';
-import { Head, Link, useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
 
 export default function Detail({ auth, product, relatedProducts = [] }) {
-    
+    const { flash, errors } = usePage().props;
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
     const [toastType, setToastType] = useState('success'); 
+
+    useEffect(() => {
+        if (flash?.error) {
+            showToastMessage(flash.error, 'error');
+        } else if (flash?.success) {
+            showToastMessage(flash.success, 'success');
+        }
+        
+        if (errors && Object.keys(errors).length > 0) {
+            const errorMsg = Object.values(errors).join("\n");
+            showToastMessage(errorMsg, 'error');
+        }
+    }, [flash, errors]);
 
     const { data, setData, post, processing } = useForm({
         product_id: product.id, // Ambil ID asli dari database
@@ -48,15 +61,7 @@ export default function Detail({ auth, product, relatedProducts = [] }) {
         }
 
         post(route('member.cart.store'), {
-            onSuccess: () => {
-                showToastMessage(
-                    `✓ ${data.quantity}x ${product.name} berhasil ditambahkan ke keranjang!`,
-                    'success'
-                );
-            },
-            onError: (errors) => {
-                showToastMessage(errors.error || 'Gagal menambahkan ke keranjang.', 'error');
-            },
+            preserveScroll: true
         });
     };
 

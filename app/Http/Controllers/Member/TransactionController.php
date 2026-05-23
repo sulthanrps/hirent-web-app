@@ -36,12 +36,17 @@ class TransactionController extends Controller
         }
 
         $itemsData = $items->map(function ($item) {
+            $rentDate = \Carbon\Carbon::parse($item->rent_date);
+            $returnDate = \Carbon\Carbon::parse($item->return_date);
+            $duration = max(1, $rentDate->diffInDays($returnDate));
+            $subtotal = $item->quantity * $item->product->price * $duration;
+
             return [
                 'id'          => $item->id,
                 'quantity'    => $item->quantity,
-                'rent_date'   => $item->rent_date,
-                'return_date' => $item->return_date,
-                'subtotal'    => $item->quantity * $item->product->price,
+                'rent_date'   => \Carbon\Carbon::parse($item->rent_date)->format('Y-m-d'),
+                'return_date' => \Carbon\Carbon::parse($item->return_date)->format('Y-m-d'),
+                'subtotal'    => $subtotal,
                 'product'     => [
                     'id'    => $item->product->id,
                     'name'  => $item->product->name,
@@ -89,7 +94,14 @@ class TransactionController extends Controller
         }
 
         DB::transaction(function () use ($items, $validated) {
-            $totalPrice = $items->sum(fn($item) => $item->quantity * $item->product->price);
+            $adminFee = 5000;
+            $itemsPrice = $items->sum(function ($item) {
+                $rentDate = \Carbon\Carbon::parse($item->rent_date);
+                $returnDate = \Carbon\Carbon::parse($item->return_date);
+                $duration = max(1, $rentDate->diffInDays($returnDate));
+                return $item->quantity * $item->product->price * $duration;
+            });
+            $totalPrice = $itemsPrice + $adminFee;
 
             // 1. Buat header transaksi (Hanya simpan status & harga)
             $transaction = Transaction::create([
@@ -102,11 +114,16 @@ class TransactionController extends Controller
 
             // 2. Buat detail transaksi & kurangi stok (Tanggal disimpan di sini!)
             foreach ($items as $item) {
+                $rentDate = \Carbon\Carbon::parse($item->rent_date);
+                $returnDate = \Carbon\Carbon::parse($item->return_date);
+                $duration = max(1, $rentDate->diffInDays($returnDate));
+                $subtotal = $item->quantity * $item->product->price * $duration;
+
                 TransactionItem::create([
                     'transaction_id' => $transaction->id,
                     'product_id'     => $item->product->id,
                     'quantity'       => $item->quantity,
-                    'subtotal'       => $item->quantity * $item->product->price,
+                    'subtotal'       => $subtotal,
                     'rent_date'      => $item->rent_date,
                     'return_date'    => $item->return_date,
                 ]);

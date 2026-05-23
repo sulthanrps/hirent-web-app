@@ -46,6 +46,24 @@ export default function Index({ auth, products = [], categories = [] }) {
         return matchCategory && matchPrice;
     });
 
+    const [sortBy, setSortBy] = useState('Paling Populer');
+
+    const getSortedProducts = (items) => {
+        const itemsCopy = [...items];
+        if (sortBy === 'Harga Terendah') {
+            return itemsCopy.sort((a, b) => a.price - b.price);
+        }
+        if (sortBy === 'Harga Tertinggi') {
+            return itemsCopy.sort((a, b) => b.price - a.price);
+        }
+        if (sortBy === 'Terbaru') {
+            return itemsCopy.sort((a, b) => b.id - a.id);
+        }
+        return itemsCopy; // Default (Paling Populer)
+    };
+
+    const sortedProducts = getSortedProducts(filteredProducts);
+
     const categoryList = ['Semua Barang', ...categories.map(c => c.name)];
     const brandList = ['The North Face', 'Osprey', 'Eiger', 'Naturehike'];
     const priceList = ['Di bawah Rp 20.000', 'Rp 20.000 - Rp 50.000', 'Di atas Rp 50.000'];
@@ -131,18 +149,22 @@ export default function Index({ auth, products = [], categories = [] }) {
                         <div className="text-xs text-[#8C8CA1] flex items-center gap-2">
                             Urutkan: 
                             <div className="border border-[#ecf1f4] p-[8px_12px] rounded-lg bg-white">
-                                <select className="border-none font-bold text-xs text-[#0e0e2c] cursor-pointer outline-none bg-transparent pr-2">
-                                    <option>Paling Populer</option>
-                                    <option>Harga Terendah</option>
-                                    <option>Harga Tertinggi</option>
-                                    <option>Terbaru</option>
+                                <select 
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                    className="border-none font-bold text-xs text-[#0e0e2c] cursor-pointer outline-none bg-transparent pr-2"
+                                >
+                                    <option value="Paling Populer">Paling Populer</option>
+                                    <option value="Harga Terendah">Harga Terendah</option>
+                                    <option value="Harga Tertinggi">Harga Tertinggi</option>
+                                    <option value="Terbaru">Terbaru</option>
                                 </select>
                             </div>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-[30px]">
-                        {filteredProducts.slice(0, 6).map((product) => (
+                        {sortedProducts.slice(0, 6).map((product) => (
                             <ProductCard key={product.id} product={product} />
                         ))}
                     </div>
@@ -176,7 +198,7 @@ export default function Index({ auth, products = [], categories = [] }) {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-[30px]">
-                        {filteredProducts.slice(6).map((product) => (
+                        {sortedProducts.slice(6).map((product) => (
                             <ProductCard key={product.id} product={product} />
                         ))}
                         
