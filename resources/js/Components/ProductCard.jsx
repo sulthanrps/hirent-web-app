@@ -1,6 +1,6 @@
 import { Link } from '@inertiajs/react';
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, isOwner = false }) {
     return (
         <div className="bg-white rounded-2xl overflow-hidden relative border border-gray-100 p-4 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col">
             
@@ -41,12 +41,15 @@ export default function ProductCard({ product }) {
                         Rp {product.price?.toLocaleString('id-ID')} 
                         <span className="text-[11px] font-normal text-[#8C8CA1] ml-1">/ day</span>
                     </div>
-                    <Link 
-                        href={`/products/${product.id}`} 
-                        className="bg-transparent text-[#AB2A02] border border-[#AB2A02] hover:bg-[#AB2A02] hover:text-white text-[10px] font-bold py-2 px-4 rounded-lg transition-colors"
-                    >
-                        RENT
-                    </Link>
+                    {!isOwner && (
+                        <Link 
+                            href={`/products/${product.id}`} 
+                            className="bg-transparent text-[#AB2A02] border border-[#AB2A02] hover:bg-[#AB2A02] hover:text-white text-[10px] font-bold py-2 px-4 rounded-lg transition-colors"
+                        >
+                            RENT
+                        </Link>
+                    )}
+                    
                 </div>
             </div>
         </div>
