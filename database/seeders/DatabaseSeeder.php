@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Transaction;
+use App\Models\TransactionItem; // <-- Tambahkan ini
 use App\Models\Review;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -17,7 +18,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Buat User (1 Owner & 1 Member)
         $owner = User::create([
             'name' => 'Owner Hirent',
             'username' => 'owner_hirent',
@@ -36,12 +36,10 @@ class DatabaseSeeder extends Seeder
             'phone_number' => '089876543210',
         ]);
 
-        // 2. Buat Kategori
         $kategoriTenda = Category::create(['name' => 'Tenda']);
         $kategoriSepatu = Category::create(['name' => 'Sepatu Gunung']);
         $kategoriCarrier = Category::create(['name' => 'Tas Carrier']);
 
-        // 3. Buat Produk (Dimiliki oleh Owner)
         $produk1 = Product::create([
             'user_id' => $owner->id,
             'category_id' => $kategoriTenda->id,
@@ -56,20 +54,50 @@ class DatabaseSeeder extends Seeder
             'category_id' => $kategoriCarrier->id,
             'name' => 'Carrier Eiger 60L',
             'description' => 'Tas carrier super nyaman untuk pendakian 3-4 hari. Backsystem empuk.',
-            'price' => 35000, // Rp 35.000 / hari
+            'price' => 35000, 
             'stock' => 3,
         ]);
 
-        // 4. Buat Transaksi Dummy (Member menyewa Produk 1)
-        Transaction::create([
-            'user_id' => $member->id,
-            'product_id' => $produk1->id,
-            'quantity' => 1,
-            'total_price' => 50000,
-            'status' => 'disewakan',
-        ]);
+        // ==========================================
+        // TRANSAKSI 1 (DIPISAH HEADER DAN DETAIL)
+        // ==========================================
+        // $trx1 = Transaction::create([
+        //     'user_id' => $member->id, 
+        //     'total_price' => 75000,
+        //     'payment_method' => 'gopay',
+        //     'payment_status' => 'settlement',
+        //     'status' => 'pending'
+        // ]);
 
-        // 5. Buat Review Dummy
+        // TransactionItem::create([
+        //     'transaction_id' => $trx1->id,
+        //     'product_id' => $produk1->id, 
+        //     'quantity' => 1,
+        //     'subtotal' => 75000,
+        //     'rent_date' => now(),
+        //     'return_date' => now()->addDays(3),
+        // ]);
+
+        // ==========================================
+        // TRANSAKSI 2 (DIPISAH HEADER DAN DETAIL)
+        // ==========================================
+        // $trx2 = Transaction::create([
+        //     'user_id' => $member->id,
+        //     'total_price' => 120000,
+        //     'payment_method' => 'bank_transfer',
+        //     'payment_status' => 'pending',
+        //     'status' => 'pending'
+        // ]);
+
+        // TransactionItem::create([
+        //     'transaction_id' => $trx2->id,
+        //     'product_id' => $produk2->id,
+        //     'quantity' => 2,
+        //     'subtotal' => 120000,
+        //     'rent_date' => now()->addDays(5),
+        //     'return_date' => now()->addDays(7),
+        // ]);
+
         Review::create([
             'user_id' => $member->id,
             'product_id' => $produk1->id,

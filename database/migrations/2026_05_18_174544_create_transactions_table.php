@@ -15,13 +15,14 @@ return new class extends Migration
             $table->id();
             
             // Foreign Keys
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete(); // Ini adalah Member (penyewa)
-            $table->foreignId('product_id')->constrained('products')->cascadeOnDelete(); // Barang yang disewa
-            
-            // Detail Transaksi
-            $table->integer('quantity'); // Jumlah barang yang dipinjam
-            $table->integer('total_price'); // Total harga (quantity * harga produk)
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->integer('total_price');
             $table->enum('status', ['pending', 'disewakan', 'dikembalikan'])->default('pending');
+            $table->string('payment_method');
+            $table->string('payment_status')->default('pending');
+            
+            // rent_date dan return_date dihapus dari sini 
+            // karena sudah kita simpan di tabel transaction_items
             
             $table->timestamps();
         });
