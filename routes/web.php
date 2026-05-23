@@ -85,9 +85,9 @@ Route::middleware('auth')->group(function () {
     Route::middleware('owner')->prefix('owner')->name('owner.')->group(function () {
 
         Route::get('/dashboard', [OwnerTransactionController::class, 'index'])->name('dashboard');
-        Route::get('/rentals', function () {
-            return Inertia::render('Owner/Rentals');
-        })->name('rentals');
+
+        Route::get('/rentals', [OwnerTransactionController::class, 'rentals'])->name('rentals');
+
         Route::patch('/transactions/{transaction}/status', [OwnerTransactionController::class, 'updateStatus'])->name('transactions.updateStatus');
 
         Route::resource('products', OwnerProductController::class);
