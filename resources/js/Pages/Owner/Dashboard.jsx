@@ -6,7 +6,7 @@ export default function Dashboard({ auth }) {
         <MainLayout user={auth.user}>
             
             {/* Tag Head ini dari Inertia untuk mengubah title tab browser */}
-            <Head title="Dashboard Testing" />
+            <Head title="Dashboard Owner" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">

@@ -21,7 +21,7 @@ export default function Login({ status }) {
 
     return (
         <div className="flex h-screen w-full flex-col md:flex-row font-['Work_Sans']">
-            <Head title="Log in" />
+            <Head title="Login" />
 
             {/* LEFT PANEL */}
             <div className="flex w-full md:w-[65%] items-center justify-center bg-gradient-to-br from-[#FAFCFE] to-[#FADD9B] p-6 h-full">

@@ -5,7 +5,7 @@ export default function Welcome({ auth }) {
     return (
         <MainLayout user={auth.user}>
             {/* Tag Head dari Inertia untuk mengubah title tab browser */}
-            <Head title="Explore the Outdoors" />
+            <Head title="Landing Page" />
 
             {/* Efek Animasi Marquee Custom */}
             <style>{`
