@@ -1,50 +1,56 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 
 export default function Navbar({ user }) {
+    const { url } = usePage(); 
+
+    const getNavLinkClass = (path) => {
+        const isActive = url.startsWith(path);
+        
+        return isActive 
+            ? 'text-[#AB2A02] font-extrabold' 
+            : 'text-[#0e0e2c] font-semibold hover:text-[#AB2A02] transition-colors'; // Style normal
+    };
+
     return (
         <header className="sticky top-0 z-50 bg-white border-b-2 border-gray-100 py-4 px-10">
             <div className="max-w-7xl mx-auto flex justify-between items-center">
+                
+                {/* Logo */}
                 <Link href="/" className="flex items-center">
                     <img src="/assets/mountain_icon.png" alt="logo" className="w-12" />
                 </Link>
 
-                {/* <nav className="hidden md:flex gap-8 font-semibold text-[#0e0e2c] text-sm">
-                    <Link href="/products" className="hover:text-[#AB2A02] transition-colors">Home</Link>
-                    <Link href="/transactions" className="hover:text-[#AB2A02] transition-colors">Rental History</Link>
-                </nav> */}
-
-                {/* === Menu Navigasi Aktif === */}
-                <nav className="hidden md:flex gap-8 font-semibold text-[#0e0e2c] text-sm">
-                    {/* Link Home menyesuaikan Role */}
+                
+                <nav className="hidden md:flex gap-8 text-sm">
+                    
                     {user && (
                         <Link 
-                            href={user?.role === 'owner' ? route('owner.dashboard') : '/product-catalogue'} 
-                            className="hover:text-[#AB2A02] transition-colors"
+                            href={user.role === 'owner' ? route('owner.dashboard') : '/product-catalogue'} 
+                            className={getNavLinkClass(user.role === 'owner' ? '/owner/dashboard' : '/product-catalogue')}
                         >
                             Home
                         </Link>
                     )}
                     
-
                     {/* Menu khusus Member */}
                     {user?.role === 'member' && (
-                        <Link href="/transactions" className="hover:text-[#AB2A02] transition-colors">
+                        <Link href="/transactions" className={getNavLinkClass('/transactions')}>
                             Rental History
                         </Link>
                     )}
 
-                    {/* Menu baru khusus Owner (Permintaan Sewa) */}
+                    {/* Menu khusus Owner */}
                     {user?.role === 'owner' && (
                         <>
-                            <Link href="/owner/rentals" className="hover:text-[#AB2A02] transition-colors">
+                            <Link href="/owner/rentals" className={getNavLinkClass('/owner/rentals')}>
                                 Rental Requests
                             </Link>
 
-                            <Link href="/owner/rentals" className="hover:text-[#AB2A02] transition-colors">
+                            <Link href="/owner/products" className={getNavLinkClass('/owner/products')}>
                                 Products
                             </Link>
 
-                            <Link href="/owner/rentals" className="hover:text-[#AB2A02] transition-colors">
+                            <Link href="/owner/categories" className={getNavLinkClass('/owner/categories')}>
                                 Categories
                             </Link>
                         </>
@@ -55,7 +61,7 @@ export default function Navbar({ user }) {
                     {/* Keranjang HANYA muncul untuk Member */}
                     {user?.role === 'member' && (
                         <>
-                            <Link href="/cart" className="text-[#0e0e2c] hover:text-[#AB2A02] transition-colors">
+                            <Link href="/cart" className={`${url.startsWith('/cart') ? 'text-[#AB2A02]' : 'text-[#0e0e2c]'} hover:text-[#AB2A02] transition-colors`}>
                                 <i className="fa-solid fa-cart-shopping text-xl"></i>
                             </Link>
 
@@ -64,19 +70,14 @@ export default function Navbar({ user }) {
                     )}
                     
                     <div className="flex items-center gap-4">
-                        <Link href="/profile" className="flex items-center gap-2 font-semibold text-sm hover:text-[#AB2A02] transition-colors">
+                        {/* Profile Link */}
+                        <Link 
+                            href="/profile" 
+                            className={`flex items-center gap-2 text-sm transition-colors ${url.startsWith('/profile') ? 'text-[#AB2A02] font-extrabold' : 'text-[#0e0e2c] font-semibold hover:text-[#AB2A02]'}`}
+                        >
                             <i className="fa-solid fa-user text-base"></i>
                             <span>{user ? user.name : 'Log In'}</span>
                         </Link>
-                        
-                        {/* <Link 
-                            href="/logout" 
-                            method="post" 
-                            as="button" 
-                            className="text-sm font-bold text-red-600 hover:text-red-800 transition-colors"
-                        >
-                            Logout
-                        </Link> */}
                     </div>
                 </div>
             </div>

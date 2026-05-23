@@ -7,7 +7,7 @@ export default function MainLayout({ user, children }) {
             
             <Navbar user={user} />
 
-            <main className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-8">
+            <main className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-4">
                 {children}
             </main>
 
