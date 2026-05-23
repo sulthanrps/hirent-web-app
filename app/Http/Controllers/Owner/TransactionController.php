@@ -115,4 +115,43 @@ class TransactionController extends Controller
 
         return back()->with('success', 'Status transaksi berhasil diperbarui.');
     }
+
+    /**
+     * Tampilkan halaman khusus Rental Requests.
+     */
+    public function rentals()
+    {
+        $transactionItems = TransactionItem::with(['transaction.user', 'product'])
+            ->whereHas('product', fn($q) => $q->where('user_id', Auth::id()))
+            ->latest()
+            ->get();
+
+        $transactions = $transactionItems
+            ->groupBy('transaction_id')
+            ->map(function ($items) {
+                $transaction = $items->first()->transaction;
+                
+                $firstItem = $items->first();
+                
+                return [
+                    'id'             => 'TRX-' . str_pad($transaction->id, 5, '0', STR_PAD_LEFT), 
+                    'raw_id'         => $transaction->id,
+                    'status'         => $transaction->status,
+                    'price'          => $transaction->total_price,
+                    'customer'       => $transaction->user->name,
+                    'email'          => $transaction->user->email,
+                    'rentDate'       => $firstItem->rent_date->format('d M'),
+                    'returnDate'     => $firstItem->return_date->format('d M'),
+                    
+                    
+                    'product'        => $items->map(fn($i) => $i->product->name)->join(', '),
+                    'qty'            => $items->sum('quantity'),
+                ];
+            })
+            ->values();
+
+        return Inertia::render('Owner/Rentals', [
+            'rentals' => $transactions,
+        ]);
+    }
 }
