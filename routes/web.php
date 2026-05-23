@@ -40,9 +40,9 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('Dashboard');
     })->middleware('verified')->name('dashboard');
 
-    Route::get('/product-catalogue', function () {
-        return Inertia::render('Product/Index');
-    })->middleware('verified')->name('product.index');
+    Route::get('/product-catalogue', [\App\Http\Controllers\Member\ProductController::class, 'index'])
+    ->middleware('verified')
+    ->name('product.index');
 
     // --- Profile ---
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -54,9 +54,9 @@ Route::middleware('auth')->group(function () {
     // =============================================
     Route::middleware('member')->group(function () {
 
-        Route::get('/products', function () {
-            return Inertia::render('Product/Index');
-        })->name('member.products');
+        Route::get('/products', [\App\Http\Controllers\Member\ProductController::class, 'index'])->name('member.products');
+
+        Route::get('/products/{product}', [\App\Http\Controllers\Member\ProductController::class, 'show'])->name('member.products.show');
 
         Route::get('/products/{id}', function ($id) {
             return Inertia::render('Product/Detail', [
