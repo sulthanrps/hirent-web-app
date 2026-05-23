@@ -12,11 +12,7 @@ export default function ProductCard({ product, isOwner = false }) {
 
             <div className="relative pt-[100%] bg-gray-100 rounded-lg overflow-hidden mb-4">
                 <img 
-                    src={
-                        product.image 
-                            ? (product.image.startsWith('/assets/') ? product.image : `/storage/${product.image}`) 
-                            : '/assets/product-dummy-img.png'
-                    } 
+                    src={product.image || '/assets/product-dummy-img.png'} 
                     alt={product.name} 
                     className="absolute top-0 left-0 w-full h-full object-cover" 
                 />
