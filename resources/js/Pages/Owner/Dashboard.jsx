@@ -38,7 +38,7 @@ export default function Dashboard({ auth }) {
                 }
             `}</style>
 
-            <div className="p-6 md:p-10 font-['Work_Sans'] bg-[#FAFCFE] min-h-screen">
+            <div className="p-6 md:p-10 md:pt-2 font-['Work_Sans'] bg-[#FAFCFE] min-h-screen">
                 
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
@@ -113,7 +113,7 @@ export default function Dashboard({ auth }) {
                         </div>
                     </div>
 
-                    <div className="lg:col-span-4 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col items-center justify-center">
+                    <div className="lg:col-span-4 bg-white border border-gray-100 rounded-2xl p-6 pt-0 shadow-sm flex flex-col items-center justify-center">
                         <div className="w-full flex justify-between items-center mb-4">
                             <h3 className="font-semibold text-[#0e0e2c] text-lg">New Customers</h3>
                             <i className="fa-solid fa-ellipsis text-gray-400"></i>

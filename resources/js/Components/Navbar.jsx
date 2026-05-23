@@ -16,12 +16,15 @@ export default function Navbar({ user }) {
                 {/* === Menu Navigasi Aktif === */}
                 <nav className="hidden md:flex gap-8 font-semibold text-[#0e0e2c] text-sm">
                     {/* Link Home menyesuaikan Role */}
-                    <Link 
-                        href={user?.role === 'owner' ? route('owner.dashboard') : '/product-catalogue'} 
-                        className="hover:text-[#AB2A02] transition-colors"
-                    >
-                        Home
-                    </Link>
+                    {user && (
+                        <Link 
+                            href={user?.role === 'owner' ? route('owner.dashboard') : '/product-catalogue'} 
+                            className="hover:text-[#AB2A02] transition-colors"
+                        >
+                            Home
+                        </Link>
+                    )}
+                    
 
                     {/* Menu khusus Member */}
                     {user?.role === 'member' && (
@@ -32,9 +35,19 @@ export default function Navbar({ user }) {
 
                     {/* Menu baru khusus Owner (Permintaan Sewa) */}
                     {user?.role === 'owner' && (
-                        <Link href="/owner/rentals" className="hover:text-[#AB2A02] transition-colors">
-                            Rental Requests
-                        </Link>
+                        <>
+                            <Link href="/owner/rentals" className="hover:text-[#AB2A02] transition-colors">
+                                Rental Requests
+                            </Link>
+
+                            <Link href="/owner/rentals" className="hover:text-[#AB2A02] transition-colors">
+                                Products
+                            </Link>
+
+                            <Link href="/owner/rentals" className="hover:text-[#AB2A02] transition-colors">
+                                Categories
+                            </Link>
+                        </>
                     )}
                 </nav>
                 
