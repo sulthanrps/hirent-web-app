@@ -7,7 +7,6 @@ export default function Cart({ auth, items }) {
   useEffect(() => {
     if (items) {
       const formattedItems = items.map(item => {
-        // Hitung durasi (hari) dari rent_date ke return_date
         const start = new Date(item.rent_date);
         const end = new Date(item.return_date);
         const durationDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
@@ -18,11 +17,11 @@ export default function Cart({ auth, items }) {
           name: item.product.name,
           category: item.product.category,
           pricePerDay: item.product.price,
-          image: item.product.image || "/assets/tenda.jpg", // Fallback image
-          color: "Default", // Nanti bisa disesuaikan kalau ada fitur warna di DB
+          image: item.product.image || "/assets/tenda.jpg", 
+          color: "Default", 
           quantity: item.quantity,
           duration: durationDays > 0 ? durationDays : 1,
-          selected: true // Default tercentang
+          selected: true // 
         };
       });
       setCartItems(formattedItems);
