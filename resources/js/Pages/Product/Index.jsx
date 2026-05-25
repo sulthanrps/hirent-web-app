@@ -172,7 +172,7 @@ export default function Index({ auth, products = [], categories = [] }) {
                     <div className="bg-[#FADD9B] rounded-xl p-5 md:p-10 md:pr-0 flex flex-col md:flex-row items-center justify-between my-10 relative">
                         <img src="/assets/star.svg" alt="star" className="absolute -top-7 -left-7 w-[70px] h-[70px] hidden md:block" />
                         
-                        <div className="mb-6 md:mb-0 text-center md:text-left">
+                        <div className="mb-6 md:mb-0 flex flex-col gap-4 text-center md:text-left">
                             <h2 className="text-4xl font-extrabold mb-2 text-[#0e0e2c]">Best Deal !</h2>
                             <div className="text-xl font-black text-[#AB2A02] mb-4">Rp. 250.000 / hari</div>
                             <button className="bg-[#AB2A02] hover:bg-[#912c0c] text-white font-bold text-xs p-[10px_30px] rounded border-none w-full md:w-auto transition-colors">
@@ -180,7 +180,7 @@ export default function Index({ auth, products = [], categories = [] }) {
                             </button>
                         </div>
 
-                        <div className="flex-1 px-0 md:px-5 mb-6 md:mb-0 text-center md:text-left">
+                        <div className="flex-1 px-0 md:ml-8 md:px-5 mb-6 md:mb-0 text-center md:text-left">
                             <h3 className="text-xl font-bold mb-2 text-[#0e0e2c]">Paket Bundling</h3>
                             <ul className="text-sm md:text-base leading-loose font-medium text-[#0e0e2c]">
                                 <li>1. Hiking Backpack</li>

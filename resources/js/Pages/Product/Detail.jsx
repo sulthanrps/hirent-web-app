@@ -3,7 +3,7 @@ import ProductCard from '@/Components/ProductCard';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 
-export default function Detail({ auth, product, relatedProducts = [] }) {
+export default function Detail({ auth, product, relatedProducts = [], reviews = [] }) {
     const { flash, errors } = usePage().props;
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
@@ -22,12 +22,36 @@ export default function Detail({ auth, product, relatedProducts = [] }) {
         }
     }, [flash, errors]);
 
+    // === KODE ASLI: FORM CART ===
     const { data, setData, post, processing } = useForm({
-        product_id: product.id, // Ambil ID asli dari database
+        product_id: product.id, 
         quantity: 1,
         rent_date: '',
         return_date: '',
     });
+
+    // === TAMBAHAN BARU: FORM REVIEW ===
+    const reviewForm = useForm({
+        product_id: product.id,
+        rating: 5,
+        comment: '',
+    });
+
+    const handleSubmitReview = (e) => {
+        e.preventDefault();
+        if (!reviewForm.data.comment.trim()) {
+            showToastMessage('Komentar tidak boleh kosong!', 'error');
+            return;
+        }
+
+        reviewForm.post(route('member.reviews.store'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                reviewForm.reset('comment');
+            }
+        });
+    };
+    // === AKHIR TAMBAHAN BARU ===
 
     const handleQuantityChange = (value) => {
         const n = parseInt(value, 10);
@@ -171,7 +195,7 @@ export default function Detail({ auth, product, relatedProducts = [] }) {
 
                         <div className="flex items-center gap-[5px] mb-[12px]">
                             <span className="text-[#F4A418] text-[18px]">★★★★★</span>
-                            <span className="text-[#8C8CA1] text-[18px]">(0)</span>
+                            <span className="text-[#8C8CA1] text-[18px]">{reviews?.length}</span>
                         </div>
 
                         <div className="text-[24px] font-[700] my-[15px]">
@@ -183,6 +207,97 @@ export default function Detail({ auth, product, relatedProducts = [] }) {
                         </div>
                     </section>
                 </main>
+
+                {/* === TAMBAHAN BARU: SECTION REVIEWS === */}
+                <section className="mt-[60px] pt-[40px] border-t border-[#ecf1f4]">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                        
+                        {/* Kiri: Daftar Ulasan */}
+                        <div className="lg:col-span-7">
+                            <h2 className="text-[24px] font-[700] mb-6">Ulasan Pengguna ({reviews.length})</h2>
+                            
+                            {reviews.length > 0 ? (
+                                <div className="space-y-6">
+                                    {reviews.map((rev) => (
+                                        <div key={rev.id} className="pb-6 border-b border-gray-100 last:border-0">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full bg-[#FADD9B] flex items-center justify-center text-[#AB2A02] font-bold uppercase">
+                                                        {rev.user?.name?.charAt(0) || 'U'}
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="font-bold text-sm text-[#0e0e2c]">{rev.user?.name || 'Anonim'}</h4>
+                                                        <span className="text-[10px] text-[#8C8CA1]">{rev.created_at}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex text-[#F4A418] text-xs">
+                                                    {[...Array(5)].map((_, i) => (
+                                                        <i key={i} className={`fa-star ${i < rev.rating ? 'fa-solid' : 'fa-regular'}`}></i>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <p className="text-sm text-gray-600 leading-relaxed pl-13">
+                                                {rev.comment}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center p-8 bg-gray-50 rounded-xl border border-gray-100 text-gray-500">
+                                    <i className="fa-regular fa-comment-dots text-3xl mb-2 text-gray-300"></i>
+                                    <p className="text-sm font-medium">Belum ada ulasan. Jadilah yang pertama mengulas!</p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Kanan: Form Tulis Ulasan */}
+                        <div className="lg:col-span-5 relative">
+                            <div className="sticky top-24 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                                <h3 className="font-bold text-lg mb-1">Tulis Ulasan Anda</h3>
+                                <p className="text-xs text-gray-400 mb-6">Bantu pendaki lain dengan membagikan pengalaman Anda.</p>
+
+                                <form onSubmit={handleSubmitReview}>
+                                    <div className="mb-4">
+                                        <label className="text-xs font-bold text-[#8C8CA1] mb-2 block">RATING BINTANG</label>
+                                        <div className="flex gap-2 text-2xl">
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                <button 
+                                                    type="button" 
+                                                    key={star} 
+                                                    onClick={() => reviewForm.setData('rating', star)}
+                                                    className="focus:outline-none transition-transform hover:scale-110"
+                                                >
+                                                    <i className={`fa-star ${reviewForm.data.rating >= star ? 'fa-solid text-[#F4A418]' : 'fa-regular text-gray-300'}`}></i>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="mb-4">
+                                        <label className="text-xs font-bold text-[#8C8CA1] mb-2 block">KOMENTAR</label>
+                                        <textarea
+                                            value={reviewForm.data.comment}
+                                            onChange={(e) => reviewForm.setData('comment', e.target.value)}
+                                            placeholder="Tuliskan pengalaman jujur Anda tentang alat ini..."
+                                            className="w-full p-3 rounded-lg border border-gray-200 text-sm focus:border-[#AB2A02] focus:ring-[#AB2A02] outline-none min-h-[120px] resize-y"
+                                            required
+                                        ></textarea>
+                                    </div>
+
+                                    <button 
+                                        type="submit" 
+                                        disabled={reviewForm.processing}
+                                        className="w-full bg-[#AB2A02] hover:bg-[#852102] text-white font-bold py-3 rounded-lg text-sm transition-colors disabled:opacity-50"
+                                    >
+                                        {reviewForm.processing ? 'Mengirim...' : 'Kirim Ulasan'}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+                {/* === AKHIR TAMBAHAN BARU === */}
 
                 {/* RELATED PRODUCTS DINAMIS */}
                 {relatedProducts.length > 0 && (

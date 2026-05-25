@@ -77,6 +77,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/reviews', [ReviewController::class, 'store'])->name('member.reviews.store');
         Route::patch('/reviews/{review}', [ReviewController::class, 'update'])->name('member.reviews.update');
         Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('member.reviews.destroy');
+
+        Route::post('/reviews', [\App\Http\Controllers\Member\ReviewController::class, 'store'])->name('member.reviews.store');
     });
 
     // =============================================
