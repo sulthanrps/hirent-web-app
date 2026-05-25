@@ -10,6 +10,8 @@ use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class TransactionController extends Controller
 {
@@ -179,5 +181,39 @@ class TransactionController extends Controller
         return Inertia::render('Owner/Rentals', [
             'rentals' => $transactions,
         ]);
+    }
+
+    /**
+     * Ekspor laporan keuangan 1 bulan terakhir ke format PDF.
+     */
+    public function exportPdf()
+    {
+        $ownerId = Auth::id();
+        $oneMonthAgo = Carbon::now()->subMonth();
+
+        
+        $reportItems = TransactionItem::with(['transaction.user', 'product'])
+            ->whereHas('product', fn($q) => $q->where('user_id', $ownerId))
+            ->whereHas('transaction', fn($q) => $q->where('status', 'dikembalikan'))
+            ->where('created_at', '>=', $oneMonthAgo)
+            ->latest()
+            ->get();
+
+        $totalRevenue = $reportItems->sum('subtotal');
+        $totalOrders = $reportItems->groupBy('transaction_id')->count();
+
+        $data = [
+            'ownerName'    => Auth::user()->name,
+            'reportDate'   => Carbon::now()->format('d M Y'),
+            'startDate'    => $oneMonthAgo->format('d M Y'),
+            'endDate'      => Carbon::now()->format('d M Y'),
+            'items'        => $reportItems,
+            'totalRevenue' => $totalRevenue,
+            'totalOrders'  => $totalOrders,
+        ];
+
+        $pdf = Pdf::loadView('exports.financial_report', $data);
+
+        return $pdf->download('Laporan_Keuangan_HiRent_' . Carbon::now()->format('Y-m') . '.pdf');
     }
 }
