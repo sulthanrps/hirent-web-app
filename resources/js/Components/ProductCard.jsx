@@ -27,8 +27,19 @@ export default function ProductCard({ product, isOwner = false }) {
                 </h3>
                 
                 <div className="flex items-center gap-1 mb-3">
-                    <span className="text-[#c6913f] text-xs tracking-widest">★★★★★</span>
-                    <span className="text-[11px] text-[#8C8CA1]">(112)</span>
+                    <div className="flex text-[#F4A418] text-[12px]">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                            <i
+                                key={star}
+                                className={`fa-star ${product.rating_avg >= star ? 'fas' : 'far'}`}
+                            >
+                            </i>
+                        ))}
+                    </div>
+                    
+                    <span className="text=[12px] text-[#8C8CA1] font-medium ml-1">
+                        ({product.reviews_count || 0}) 
+                    </span>
                 </div>
 
                 {/* Card Footer (Price & Rent Button) */}
