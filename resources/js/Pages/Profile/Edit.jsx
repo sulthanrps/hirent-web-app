@@ -3,11 +3,13 @@ import MainLayout from '@/Layouts/MainLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function Edit({ auth }) {
+    // BARIS INI YANG SEBELUMNYA HILANG
     const [previewImg, setPreviewImg] = useState(
-        auth.user.profile_photo_path ? `/storage/${auth.user.profile_photo_path}` : '/assets/placeholder.svg'
+        auth.user.profile_picture ? `/storage/${auth.user.profile_picture}` : '/assets/placeholder.svg'
     );
 
-    const { data, setData, patch, processing, errors } = useForm({
+    const { data, setData, post, processing, errors } = useForm({
+        _method: 'patch', 
         name: auth.user.name,
         email: auth.user.email,
         phone_number: auth.user.phone_number || '',
@@ -21,13 +23,22 @@ export default function Edit({ auth }) {
         const file = e.target.files[0];
         if (file) {
             setData('photo', file);
-            setPreviewImg(URL.createObjectURL(file));
+            setPreviewImg(URL.createObjectURL(file)); // Sekarang tidak akan error lagi
         }
     };
 
     const submit = (e) => {
         e.preventDefault();
-        patch(route('profile.update'));
+        post(route('profile.update'), {
+            forceFormData: true,
+            preserveScroll: true,
+            onSuccess: () => {
+                alert('Profil berhasil diperbarui!');
+                setData('current_password', '');
+                setData('password', '');
+                setData('password_confirmation', '');
+            }
+        });
     };
 
     return (
@@ -39,7 +50,6 @@ export default function Edit({ auth }) {
                 {/* === LEFT SECTION (SIDEBAR) === */}
                 <div className="w-full md:w-[30%] p-8 md:p-11 md:pt-8 rounded-2xl border border-gray-300/50 flex flex-col items-center gap-7 bg-[#ECF1F4]">
                     
-                    {/* Breadcrumb */}
                     <nav className="text-sm text-[#8C8CA1] self-start w-full mb-2">
                         <Link 
                             href={auth.user.role === 'owner' ? route('owner.dashboard') : route('member.products')} 
@@ -51,7 +61,6 @@ export default function Edit({ auth }) {
                         <span className="font-semibold text-[#0e0e2c]">Profile</span>
                     </nav>
 
-                    {/* Profile Info Summary */}
                     <div className="flex flex-col items-center text-center relative mt-4">
                         <img 
                             src={previewImg} 
@@ -62,7 +71,6 @@ export default function Edit({ auth }) {
                         <p className="text-sm font-medium text-[#8C8CA1]">Role: <span className="uppercase">{auth.user.role}</span></p>
                     </div>
 
-                    {/* Sidebar Navigation */}
                     <div className="w-full mt-4">
                         <ul className="flex flex-col gap-2 w-full">
                             <li className="p-4 px-6 flex items-center font-black gap-3 rounded-lg bg-black text-white cursor-pointer">
@@ -74,7 +82,6 @@ export default function Edit({ auth }) {
                                 <span>Payment Method</span>
                             </li>
                             
-                            {/* === LOGIKA CONDITIONAL KHUSUS MEMBER === */}
                             {auth.user.role === 'member' && (
                                 <Link 
                                     href={route('profile.transactions')} 
@@ -99,7 +106,6 @@ export default function Edit({ auth }) {
                 <div className="w-full md:w-[70%] p-8 md:p-11 flex flex-col items-center bg-white">
                     <form onSubmit={submit} className="flex flex-col gap-5 items-center w-full max-w-[650px]">
                         
-                        {/* Profile Picture Upload Input */}
                         <div className="flex flex-col items-center relative mb-6">
                             <div className="relative">
                                 <img 
@@ -121,9 +127,9 @@ export default function Edit({ auth }) {
                                 className="hidden" 
                                 onChange={handleImageChange}
                             />
+                            {errors.photo && <span className="text-red-500 text-xs mt-2">{errors.photo}</span>}
                         </div>  
 
-                        {/* Input Name */}
                         <div className="flex flex-col gap-2 w-full">
                             <label htmlFor="name" className="font-bold text-[#0e0e2c]">Name</label>
                             <input 
@@ -133,9 +139,9 @@ export default function Edit({ auth }) {
                                 onChange={e => setData('name', e.target.value)}
                                 className="border border-gray-200 bg-[#f3f4f6] p-3 rounded-lg w-full focus:ring-2 focus:ring-black focus:border-black outline-none"
                             />
+                            {errors.name && <span className="text-red-500 text-xs">{errors.name}</span>}
                         </div>
 
-                        {/* Input Email */}
                         <div className="flex flex-col gap-2 w-full">
                             <label htmlFor="email" className="font-bold text-[#0e0e2c]">Email</label>
                             <input 
@@ -145,9 +151,9 @@ export default function Edit({ auth }) {
                                 onChange={e => setData('email', e.target.value)}
                                 className="border border-gray-200 bg-[#f3f4f6] p-3 rounded-lg w-full focus:ring-2 focus:ring-black focus:border-black outline-none"
                             />
+                            {errors.email && <span className="text-red-500 text-xs">{errors.email}</span>}
                         </div>
 
-                        {/* Input Phone */}
                         <div className="flex flex-col gap-2 w-full">
                             <label htmlFor="phone" className="font-bold text-[#0e0e2c]">Phone Number</label>
                             <input 
@@ -157,9 +163,9 @@ export default function Edit({ auth }) {
                                 onChange={e => setData('phone_number', e.target.value)}
                                 className="border border-gray-200 bg-[#f3f4f6] p-3 rounded-lg w-full focus:ring-2 focus:ring-black focus:border-black outline-none"
                             />
+                            {errors.phone_number && <span className="text-red-500 text-xs">{errors.phone_number}</span>}
                         </div>
 
-                        {/* Change Password Section */}
                         <div className="flex flex-col gap-2 w-full mt-4 pt-4 border-t border-gray-100">
                             <label className="font-bold text-[#0e0e2c]">Change Password</label>
                             <input 
@@ -169,6 +175,8 @@ export default function Edit({ auth }) {
                                 placeholder="Write your old password"
                                 className="border border-gray-200 bg-[#f3f4f6] p-3 rounded-lg w-full focus:ring-2 focus:ring-black focus:border-black outline-none mb-2"
                             />
+                            {errors.current_password && <span className="text-red-500 text-xs">{errors.current_password}</span>}
+                            
                             <input 
                                 type="password" 
                                 value={data.password}
@@ -176,6 +184,8 @@ export default function Edit({ auth }) {
                                 placeholder="Write your new password"
                                 className="border border-gray-200 bg-[#f3f4f6] p-3 rounded-lg w-full focus:ring-2 focus:ring-black focus:border-black outline-none mb-2"
                             />
+                            {errors.password && <span className="text-red-500 text-xs">{errors.password}</span>}
+
                             <input 
                                 type="password" 
                                 value={data.password_confirmation}
@@ -185,7 +195,6 @@ export default function Edit({ auth }) {
                             />
                         </div>
 
-                        {/* Submit Button */}
                         <button 
                             type="submit" 
                             disabled={processing}

@@ -94,6 +94,8 @@ Route::middleware('auth')->group(function () {
 
         Route::resource('products', OwnerProductController::class);
         Route::resource('categories', OwnerCategoryController::class)->except(['show', 'create', 'edit']);
+
+        Route::get('/dashboard/export-pdf', [OwnerTransactionController::class, 'exportPdf'])->name('dashboard.exportPdf');
     });
 
 });
