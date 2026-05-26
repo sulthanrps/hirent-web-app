@@ -29,7 +29,7 @@ WORKDIR /var/www/html
 
 # 9. Jalankan instalasi dependensi PHP (Laravel) & JavaScript (React Vite)
 RUN composer install --optimize-autoloader --no-dev --ignore-platform-reqs
-RUN npm install
+RUN npm install --legacy-peer-deps
 RUN npm run build
 
 # 10. Berikan hak akses (permission) folder storage agar Laravel bisa nulis file/log
