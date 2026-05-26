@@ -1,9 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import MainLayout from '@/Layouts/MainLayout';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 
 export default function Cart({ auth, items }) {
+  const { flash, errors } = usePage().props;
   const [cartItems, setCartItems] = useState([]);
+
+  useEffect(() => {
+    if (flash?.error) {
+      alert(flash.error);
+    }
+    if (errors && Object.keys(errors).length > 0) {
+      const errorMsg = Object.values(errors).join("\n");
+      alert(errorMsg);
+    }
+  }, [flash, errors]);
+
   useEffect(() => {
     if (items) {
       const formattedItems = items.map(item => {
@@ -21,6 +33,8 @@ export default function Cart({ auth, items }) {
           color: "Default", 
           quantity: item.quantity,
           duration: durationDays > 0 ? durationDays : 1,
+          rent_date: item.rent_date,
+          return_date: item.return_date,
           selected: true // 
         };
       });
@@ -39,18 +53,58 @@ export default function Cart({ auth, items }) {
   };
   const [discount, setDiscount] = useState(0);
 
+  // Local parser to prevent timezone offset shifts
+  const parseDateLocal = (dateStr) => {
+    if (!dateStr) return new Date();
+    const parts = dateStr.split('T')[0].split('-');
+    return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+  };
+
+  // Helper to add days to a date string (returns YYYY-MM-DD)
+  const calculateReturnDate = (rentDateStr, durationDays) => {
+    const rentDate = parseDateLocal(rentDateStr);
+    rentDate.setDate(rentDate.getDate() + durationDays);
+    const yyyy = rentDate.getFullYear();
+    const mm = String(rentDate.getMonth() + 1).padStart(2, '0');
+    const dd = String(rentDate.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
   // Handle Perubahan Kuantitas (Pcs) atau Durasi (Hari)
   const updateMetrics = (id, field, type) => {
+    const targetItem = cartItems.find(item => item.id === id);
+    if (!targetItem) return;
+
+    const currentValue = targetItem[field];
+    const newValue = type === 'increment' ? currentValue + 1 : currentValue - 1;
+    const updatedVal = newValue > 0 ? newValue : 1;
+
+    let newQuantity = targetItem.quantity;
+    let newReturnDate = targetItem.return_date;
+    let newDuration = targetItem.duration;
+
+    if (field === 'quantity') {
+      newQuantity = updatedVal;
+    } else if (field === 'duration') {
+      newDuration = updatedVal;
+      newReturnDate = calculateReturnDate(targetItem.rent_date, updatedVal);
+    }
+
     setCartItems(prevItems =>
-      prevItems.map(item => {
-        if (item.id === id) {
-          const currentValue = item[field];
-          const newValue = type === 'increment' ? currentValue + 1 : currentValue - 1;
-          return { ...item, [field]: newValue > 0 ? newValue : 1 };
-        }
-        return item;
-      })
+      prevItems.map(item =>
+        item.id === id
+          ? { ...item, quantity: newQuantity, duration: newDuration, return_date: newReturnDate }
+          : item
+      )
     );
+
+    router.patch(route('member.cart.update', id), {
+      quantity: newQuantity,
+      rent_date: targetItem.rent_date,
+      return_date: newReturnDate
+    }, {
+      preserveScroll: true
+    });
   };
 
   // Handle Checkbox Tunggal
@@ -68,7 +122,11 @@ export default function Cart({ auth, items }) {
 
   // Hapus Item
   const deleteItem = (id) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== id));
+    if (confirm("Apakah Anda yakin ingin menghapus item ini dari keranjang?")) {
+      router.delete(route('member.cart.destroy', id), {
+        preserveScroll: true
+      });
+    }
   };
 
   // Penerapan Kode Promo

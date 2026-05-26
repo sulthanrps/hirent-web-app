@@ -77,6 +77,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/reviews', [ReviewController::class, 'store'])->name('member.reviews.store');
         Route::patch('/reviews/{review}', [ReviewController::class, 'update'])->name('member.reviews.update');
         Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('member.reviews.destroy');
+
+        Route::post('/reviews', [\App\Http\Controllers\Member\ReviewController::class, 'store'])->name('member.reviews.store');
     });
 
     // =============================================
@@ -92,6 +94,8 @@ Route::middleware('auth')->group(function () {
 
         Route::resource('products', OwnerProductController::class);
         Route::resource('categories', OwnerCategoryController::class)->except(['show', 'create', 'edit']);
+
+        Route::get('/dashboard/export-pdf', [OwnerTransactionController::class, 'exportPdf'])->name('dashboard.exportPdf');
     });
 
 });

@@ -28,12 +28,17 @@ class CartController extends Controller
         $cart = $this->getOrCreateCart();
 
         $items = $cart->items()->with('product.category')->get()->map(function ($item) {
+            $rentDate = \Carbon\Carbon::parse($item->rent_date);
+            $returnDate = \Carbon\Carbon::parse($item->return_date);
+            $duration = max(1, $rentDate->diffInDays($returnDate));
+            $subtotal = $item->quantity * $item->product->price * $duration;
+
             return [
                 'id'          => $item->id,
                 'quantity'    => $item->quantity,
-                'rent_date'   => $item->rent_date,
-                'return_date' => $item->return_date,
-                'subtotal'    => $item->quantity * $item->product->price,
+                'rent_date'   => \Carbon\Carbon::parse($item->rent_date)->format('Y-m-d'),
+                'return_date' => \Carbon\Carbon::parse($item->return_date)->format('Y-m-d'),
+                'subtotal'    => $subtotal,
                 'product'     => [
                     'id'       => $item->product->id,
                     'name'     => $item->product->name,
@@ -74,8 +79,12 @@ class CartController extends Controller
 
         $cart = $this->getOrCreateCart();
 
-        // Jika produk sudah ada di keranjang, update quantity-nya
-        $existingItem = $cart->items()->where('product_id', $product->id)->first();
+        // Jika produk dengan tanggal sewa yang sama sudah ada di keranjang, update quantity-nya
+        $existingItem = $cart->items()
+            ->where('product_id', $product->id)
+            ->where('rent_date', $validated['rent_date'])
+            ->where('return_date', $validated['return_date'])
+            ->first();
 
         if ($existingItem) {
             $newQuantity = $existingItem->quantity + $validated['quantity'];
@@ -110,7 +119,7 @@ class CartController extends Controller
 
         $validated = $request->validate([
             'quantity'    => 'required|integer|min:1',
-            'rent_date'   => 'required|date|after_or_equal:today',
+            'rent_date'   => 'required|date',
             'return_date' => 'required|date|after:rent_date',
         ]);
 

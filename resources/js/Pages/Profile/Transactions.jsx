@@ -5,7 +5,7 @@ import { Head, Link } from '@inertiajs/react';
 // Tambahkan 'transactions' di props
 export default function Transactions({ auth, transactions }) {
     
-    const previewImg = auth.user.profile_photo_path ? `/storage/${auth.user.profile_photo_path}` : '/assets/placeholder.svg';
+    const previewImg = auth.user.profile_picture ? `/storage/${auth.user.profile_picture}` : '/assets/placeholder.svg';
 
     // Pastikan transactions berbentuk array
     const transactionList = transactions || [];

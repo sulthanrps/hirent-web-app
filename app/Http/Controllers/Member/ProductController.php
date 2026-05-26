@@ -16,7 +16,9 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         // Mulai query dengan memanggil relasi category
-        $query = Product::with('category');
+        $query = Product::with('category')
+            ->withCount('reviews')
+            ->withAvg('reviews', 'rating'); 
 
         // 1. Fitur Search (Opsional, jika member mencari lewat search bar)
         if ($request->has('search') && $request->search != '') {
@@ -41,7 +43,9 @@ class ProductController extends Controller
                 // Bungkus category name ke dalam array object agar dibaca oleh ProductCard.jsx
                 'category'    => [
                     'name' => $product->category->name
-                ]
+                ],
+                'rating_avg'  => round($product->reviews_avg_rating ?? 0, 1), // Tambahkan rating rata-rata
+                'reviews_count' => $product->reviews_count, // Tambahkan jumlah review
             ];
         });
 
@@ -61,7 +65,7 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         // Load relasi kategori agar nama kategorinya terbaca
-        $product->load('category');
+        $product->load(['category', 'reviews.user']);
 
         // Ambil produk lain di kategori yang sama untuk bagian "Produk Lain" (Maksimal 4)
         $relatedProducts = Product::with('category')
@@ -89,11 +93,26 @@ class ProductController extends Controller
             'stock'       => $product->stock,
             'image'       => $product->image ? asset('storage/' . $product->image) : null,
             'category'    => ['name' => $product->category->name],
+            'rating_avg'  => round($product->reviews->avg('rating') ?? 0, 1),
+            'reviews_count' => $product->reviews->count(),
         ];
+
+        $reviews = $product->reviews->sortByDesc('created_at')->map(function ($review) {
+            return [
+                'id'        => $review->id,
+                'rating'    => $review->rating,
+                'comment'   => $review->comment,
+                'created_at' => $review->created_at->format('d M Y'),
+                'user'      => [
+                    'name' => $review->user->name,
+                ],
+            ];
+        })->values();
 
         return Inertia::render('Product/Detail', [
             'product'         => $formattedProduct,
             'relatedProducts' => $relatedProducts,
+            'reviews'         => $reviews,
         ]);
     }
 }
