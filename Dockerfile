@@ -7,6 +7,10 @@ RUN apt-get update && apt-get install -y \
     && curl -sL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
+# === TAMBAHAN BARU: Matikan MPM yang bentrok, pastikan hanya prefork yang menyala ===
+RUN a2dismod mpm_event mpm_worker || true
+RUN a2enmod mpm_prefork || true
+
 # 3. Instal ekstensi PHP yang wajib ada untuk Laravel & MySQL
 RUN docker-php-ext-install pdo_mysql zip
 
