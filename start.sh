@@ -1,10 +1,15 @@
 #!/bin/bash
 
-# Jalankan migrasi database otomatis di server produksi tanpa konfirmasi pertanyaan
+# 1. Hapus link storage lama jika ada, lalu buat ulang agar rapi & tidak error
+rm -rf public/storage
+php artisan storage:link
+
+# 2. Jalankan migrasi database otomatis
 php artisan migrate --force
 
-# Buat shortcut link storage (Abaikan jika sudah ada)
-php artisan storage:link || true
+# 3. Paksa matikan mesin Apache yang bentrok sesaat sebelum server nyala
+a2dismod mpm_event mpm_worker || true
+a2enmod mpm_prefork || true
 
-# Jalankan Apache web server agar website bisa diakses
+# 4. Nyalakan server web
 apache2-foreground
