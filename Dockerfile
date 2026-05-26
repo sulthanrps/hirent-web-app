@@ -4,7 +4,7 @@ FROM php:8.2-apache
 # 2. Instal tool sistem OS Linux yang dibutuhkan (git, unzip, nodejs, npm)
 RUN apt-get update && apt-get install -y \
     libzip-dev zip unzip git curl \
-    && curl -sL https://deb.nodesource.com/setup_18.x | bash - \
+    && curl -sL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
 # 3. Instal ekstensi PHP yang wajib ada untuk Laravel & MySQL
